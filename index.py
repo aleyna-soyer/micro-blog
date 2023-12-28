@@ -1,6 +1,7 @@
 from datetime import timedelta
 from functools import wraps
 import time
+from bson import ObjectId
 from flask_bcrypt import Bcrypt
 from flask import Flask, jsonify, make_response,render_template, request
 from mongoengine import connect, disconnect
@@ -38,14 +39,52 @@ def user_lookup_callback(_jwt_header, jwt_data):
 
     return User.objects.get(id=identity)
 
+# @app.route('/deletepost', methods=['DELETE'])
+# @jwt_required()
+# def  deletepost():
+#      current_user_id = get_jwt_identity()
+#      if not current_user_id:
+#         return make_response("login to post a delete entry", 401)
+     
+#      post = Post.objects.get(author=current_user_id)
+#      if post:
+#          post.delete()
+#          return jsonify({'message': 'Post deleted successfully'})    
+       
+#      else:
+#         return make_response("You don't have permission to delete this post", 403)
+        
+
+    #  if (request.method == 'DELETE'):
+    #     post=Post.objects(id=current_user_id).first()
+    #     post.delete()
+
+    #     return jsonify({'message': 'Post deleted successfully'})
+
+    #  if not post:
+    #     return make_response("Post not found", 404)
+    #     return jsonify({'message': 'Post deleted successfully'})
+     
+    #  else:
+    #     return make_response("You don't have permission to delete this post", 403)
+
+@app.route('/getposts', methods=['GET'])
+def getposts():
+
+    posts = Post.objects().order_by('-date')
+    post_list = [{'title': post.title, 'content': post.content} for post in posts]
+
+    return jsonify({'posts': post_list})
+
 @app.route('/addpost', methods=['POST'])
 @jwt_required()
-def  addpost():
+def addpost():
 
     current_user_id = get_jwt_identity()
     print(current_user_id)
     if not current_user_id:
         return make_response("login to post a new entry", 401)
+    
     user = User.objects.get(id=current_user_id)
 
     if request.method == 'POST':
@@ -57,6 +96,8 @@ def  addpost():
             author=user, date=time.time() 
             )
         newPost.save()
+        print(current_user_id)
+        print(Post.author)
         
         return jsonify({'message': 'create post successfully'})
 
@@ -82,9 +123,9 @@ def login():
     password = request.json.get('password')
 
     user = User.objects(username=username).first()
-    print(user)
-    print()
-    print(user.id)
+    # print(user)
+    # print()
+    # print(user.id)
     print(app.config["JWT_SECRET_KEY"])
     if not user or not bcrypt.check_password_hash(user.password, password):
         return make_response("Wrong username or password", 401)
