@@ -39,34 +39,41 @@ def user_lookup_callback(_jwt_header, jwt_data):
 
     return User.objects.get(id=identity)
 
-# @app.route('/deletepost', methods=['DELETE'])
-# @jwt_required()
-# def  deletepost():
-#      current_user_id = get_jwt_identity()
-#      if not current_user_id:
-#         return make_response("login to post a delete entry", 401)
+@app.route('/updatepost', methods=['POST'])
+@jwt_required()
+def updatepost():
      
-#      post = Post.objects.get(author=current_user_id)
-#      if post:
-#          post.delete()
-#          return jsonify({'message': 'Post deleted successfully'})    
-       
-#      else:
-#         return make_response("You don't have permission to delete this post", 403)
-        
-
-    #  if (request.method == 'DELETE'):
-    #     post=Post.objects(id=current_user_id).first()
-    #     post.delete()
-
-    #     return jsonify({'message': 'Post deleted successfully'})
-
-    #  if not post:
-    #     return make_response("Post not found", 404)
-    #     return jsonify({'message': 'Post deleted successfully'})
+     current_user_id = get_jwt_identity()
+     if not current_user_id:
+        return make_response("login to post a update entry", 401)
      
-    #  else:
-    #     return make_response("You don't have permission to delete this post", 403)
+     post = Post.objects(author=current_user_id).first()
+    
+     if post:
+        updated_data = request.json
+        post.title = updated_data.get('title', post.title)
+        post.content = updated_data.get('content', post.content)
+        post.date = time.time()
+        post.save()
+        return jsonify({'message': 'Post updated successfully'})
+     else:
+        return make_response("You don't have permission to update this post or post does not exist", 403)
+
+@app.route('/deletepost', methods=['DELETE'])
+@jwt_required()
+def  deletepost():
+     
+     current_user_id = get_jwt_identity()
+     if not current_user_id:
+        return make_response("login to post a delete entry", 401)
+     
+     post = Post.objects(author=current_user_id).first()
+
+     if post:
+        post.delete()
+        return jsonify({'message': 'Post deleted successfully'})
+     else:
+        return make_response("You don't have permission to delete this post or post does not exist", 403)
 
 @app.route('/getposts', methods=['GET'])
 def getposts():
