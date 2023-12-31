@@ -6,12 +6,13 @@ from flask_bcrypt import Bcrypt
 from flask import Flask, jsonify, make_response,render_template, request
 from mongoengine import connect, disconnect
 from dotenv import load_dotenv
+from blockList import BlockList
 from post import Post
 from user import User
 import os
 import json 
 import jwt
-from flask_jwt_extended import JWTManager, create_access_token, get_jwt_identity, jwt_required
+from flask_jwt_extended import JWTManager, create_access_token, get_jwt, get_jwt_identity, jwt_required
 
 app=Flask(__name__)
 load_dotenv()
@@ -28,16 +29,34 @@ def get_id_by_user(user):
     if isinstance(user, User):
         return str(user.id)
     
-    return None  # veya uygun bir değer döndürün
+    return None
 
 @jwt.user_lookup_loader
 def user_lookup_callback(_jwt_header, jwt_data):
 
-    """Callback function to look up a user by identity in JWT data."""
-    
+    """Callback function to look up a user by identity in JWT data."""   
     identity = jwt_data["sub"]
 
     return User.objects.get(id=identity)
+
+@jwt.token_in_blocklist_loader
+def check_if_token_revoked(jwt_header, jwt_payload):
+
+    jti = jwt_payload['jti']
+    token = BlockList.objects(jti=jti).limit(1).first()
+    return token != None
+
+@app.route('/logout', methods=['DELETE'])
+@jwt_required()
+def logout():
+      current_user_id = get_jwt_identity()
+      if current_user_id!= None:
+        jti = get_jwt()["jti"]
+        blockedToken = BlockList(jti=jti) 
+        blockedToken.save()
+        return jsonify({'message': 'Logout success'})
+      else:
+        return make_response("Already logged out", 403)
 
 @app.route('/updatepost', methods=['POST'])
 @jwt_required()
