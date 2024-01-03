@@ -1,3 +1,4 @@
+
 from datetime import timedelta
 from functools import wraps
 import time
@@ -127,22 +128,6 @@ def addpost():
         
         return jsonify({'message': 'create post successfully'})
 
-@app.route('/register', methods=['POST'])
-def register(): 
-
-    username = request.json.get('username')
-    password = request.json.get('password')
-
-    password = bcrypt.generate_password_hash(password).decode('utf-8')
-    if username and password:                
-        user = User(username=username, password=password)
-        user.save()  
-
-    else:
-        return jsonify({'message': 'Fill in the required fields'} )
-    
-    return jsonify({'message': 'registered successfully'})
-
 @app.route('/login', methods=['POST']) 
 def login():
     username = request.json.get('username')
@@ -159,6 +144,19 @@ def login():
     token = create_access_token(identity=user)
     return jsonify({'token': token})
         
+@app.route('/register', methods=['POST'])
+def register(): 
+    username = request.json.get('username')
+    password = request.json.get('password')
+
+    password = bcrypt.generate_password_hash(password).decode('utf-8')
+    if username and password:                
+        user = User(username=username, password=password)
+        user.save()  
+    else:
+        return jsonify({'message': 'Fill in the required fields'} )
+    return jsonify({'message': 'registered successfully'})
+  
 @app.route("/")
 def homePage():
     return "My Blog Page"
