@@ -1,3 +1,4 @@
+
 from datetime import timedelta
 from functools import wraps
 import time
@@ -158,7 +159,7 @@ def login():
 
     token = create_access_token(identity=user)
     return jsonify({'token': token})
-        
+
 @app.route("/")
 def homePage():
     return "My Blog Page"
