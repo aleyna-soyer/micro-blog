@@ -9,7 +9,7 @@
         <button @click="deletePost(post._id)">Delete</button>
       </li>
     </ul>
-    <p v-else>Yayınlanmış gönderiniz yok.</p>
+    <p v-else>Yayınlanmış gönderi yok.</p>
   </div>
 </template>
 
