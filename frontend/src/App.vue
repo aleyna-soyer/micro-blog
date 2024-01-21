@@ -18,5 +18,14 @@ export default {
   text-align: center;
   color: #2c3e50;
   margin-top: 60px;
+
 }
+
+#app img {
+  display: flex;
+  margin: 0 auto;
+  width: 10%;
+
+}
+
 </style>
