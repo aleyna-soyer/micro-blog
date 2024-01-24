@@ -42,7 +42,8 @@ const routes = [
     component: AddPost
   },
   {
-    path: '/updatepost',
+    path: '/updatepost/:id',
+    name: UpdatePost,
     component: UpdatePost
   }
 ]

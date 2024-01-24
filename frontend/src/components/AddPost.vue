@@ -1,7 +1,7 @@
 
 <template>
 <div>
-  <div v-if="posts.length >= 0">
+  <div>
     <h2>Create a New Post</h2>
     <form @submit.prevent="createPost">
       <label for="title">Title:</label>
@@ -13,7 +13,6 @@
       <button type="submit">Create Post</button>
     </form>
   </div>
-  <p v-else>You are not logged in.</p>
 </div>
 </template>
 
@@ -32,9 +31,16 @@ export default {
       }
     }
   },
+  created () {
+    const jwtToken = localStorage.getItem('jwt')
+    if (!jwtToken){
+      this.$router.push('/login')
+    }
+  },
   methods: {
     createPost () {
       const jwtToken = localStorage.getItem('jwt')
+      console.log(jwtToken)
       axios.post('http://localhost:5000/addpost', this.post, {
         headers: {
           Authorization: `Bearer ${localStorage.getItem('jwt')}`,
