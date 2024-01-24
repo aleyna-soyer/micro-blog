@@ -24,6 +24,7 @@ CORS(
         "http://localhost:8080",
     ],
 )
+
 load_dotenv()
 app.config["JWT_SECRET_KEY"] = os.getenv("SECRET_KEY", "SECRET_KEY")
 mongo_uri = os.getenv("MONGO_URI")
@@ -91,7 +92,6 @@ def getcomment(post_id):
         return jsonify({'comments': comment_list})
     else:
         return jsonify({'error': 'Comments not found'})
-
 
 @app.route('/logout', methods=['DELETE'])
 @jwt_required()
@@ -174,7 +174,6 @@ def getpost(post_id):
         return jsonify({'post': posts})
     else:
         return jsonify({'error': 'Post not found'}), 404
-
 
 @app.route('/addpost', methods=['POST'])
 @jwt_required()
