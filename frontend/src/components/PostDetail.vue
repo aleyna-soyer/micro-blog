@@ -3,8 +3,12 @@
     <h2>{{ post.title }}</h2>
     <p>Author: {{ post.author }}</p>
     <p>Date: {{ post.date }}</p>
-    <p>{{ post.content }}</p>
-  </div>
+    <p>Entry: {{ post.content }}</p>
+     <div v-if="comment && comment.length > 0" v-for="c in comment" :key="c.id">
+      <p>Comment: {{ c.comment }}</p>
+    </div>
+    <p v-else>No comments</p>
+</div>
 </template>
 
 <script>
@@ -13,20 +17,37 @@ import axios from 'axios'
 export default {
   data () {
     return {
-      post: null
+      post: {},
+      id: this.$route.params.id,
+      comment: []
     }
   },
   created () {
-    this.fetchPostDetails()
+    console.log(this.id)
+    this.fetchPost(this.id)
+  },
+  mounted () {
+    this.fetchComment(this.id)
   },
   methods: {
-    fetchPostDetails () {
-      axios.get(`http://localhost:5000/getpostbyauthor`)
+    fetchComment (id) {
+      axios.get(`http://localhost:5000/getcomment/${id}`)
         .then((response) => {
-          this.post = response.data
+          this.comment = response.data.comments
+          console.log(response.data)
         })
         .catch((error) => {
-          console.error('Error fetching post details:', error)
+          console.error('Error fetching comments:', error)
+        })
+    },
+    fetchPost (id) {
+      axios.get(`http://localhost:5000/getpost/${id}`)
+        .then((response) => {
+          this.post = response.data.post
+          console.log(this.$route.params.id)
+        })
+        .catch((error) => {
+          console.error('Error fetching post:', error)
         })
     }
   }

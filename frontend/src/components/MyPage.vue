@@ -1,15 +1,17 @@
 <template>
   <div>
-    <h2>Yazarınızın Gönderileri</h2>
+    <h2>My Posts</h2>
+    <button @click="addPost()" class="add">Add Post</button>
     <ul v-if="posts.length > 0">
-      <li v-for="post in posts" :key="post._id">
+      <li v-for="post in posts" :key="post.id">
         <h3>{{ post.title }}</h3>
         <p>{{ post.content }}</p>
-        <p>ID: {{ post._id }}</p>
-        <button @click="deletePost(post._id)">Delete</button>
+        <p>ID: {{ post.id }}</p>
+        <button @click="deletePost(post.id)">Delete</button>
+        <button @click="updatePost(post.id)">Update</button>
       </li>
     </ul>
-    <p v-else>Yayınlanmış gönderi yok.</p>
+    <p v-else> Any post </p>
   </div>
 </template>
 
@@ -26,16 +28,20 @@ export default {
     this.fetchPosts()
   },
   methods: {
+    addPost () {
+      this.$router.push({ name: 'AddPost' })
+    },
     fetchPosts () {
       const jwtToken = localStorage.getItem('jwt')
       axios.get('http://localhost:5000/getpostbyauthor', {
         headers: {
-          Authorization: `Bearer ${localStorage.getItem('jwt')}`,
+          Authorization: `Bearer ${jwtToken}`,
           'Content-Type': 'application/json'
         }
       })
         .then(response => {
           this.posts = response.data.posts
+          console.log(response)
         })
         .catch(error => {
           console.log(jwtToken)
@@ -43,24 +49,52 @@ export default {
         })
     },
     deletePost (postId) {
-      axios
-        .delete('http://localhost:5000/deletepost', {
-          data: { _id: postId },
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem('jwt')}`,
-            'Content-Type': 'application/json'
-          }
-        })
+      axios.delete(`http://localhost:5000/deletepost/${postId}`, {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem('jwt')}`,
+          'Content-Type': 'application/json'
+        }
+      })
         .then((response) => {
           console.log(response.data)
-          // If you want to update the list after deletion, you can call fetchPosts() again
           this.fetchPosts()
         })
         .catch((error) => {
           console.error('Error deleting post:', error)
         })
+    },
+    updatePost (postId) {
+      this.$router.push({ name: 'UpdatePost' })
+      axios.post(`http://localhost:5000/updatepost/${this.postId}`)
     }
   }
 }
 
 </script>
+
+<style scoped>
+
+.add{
+  background-color: #D2691E;
+  color: white;
+  padding: 10px 15px;
+  border: none;
+  border-radius: 3px;
+  cursor: pointer;
+  font-size: 14px;
+  width: 5%;
+  display: block;
+  box-sizing: border-box;
+  margin: 0 auto;
+}
+
+body {
+  background-color: #f5f5f5;
+}
+
+ul {
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+</style>

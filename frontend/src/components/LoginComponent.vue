@@ -33,7 +33,7 @@ export default {
           this.jwt = response.data.token
           localStorage.setItem('jwt', this.jwt)
           console.log(this.jwt)
-          this.$router.push('/')
+          this.$router.push('/MyPage')
         })
         .catch(error => {
           console.error('Error:', error)
