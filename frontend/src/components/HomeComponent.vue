@@ -1,26 +1,27 @@
 <template>
   <div class="center-content">
     <h2>Home Page</h2>
-    <button @click="logout">
+    <button @click="login()" class="button login">Login</button>
+    <button @click="register()" class="button register">Register</button>
+    <button @click="logout" class="button">
       <span>Logout</span>
     </button>
     <table>
-    <thead>
-      <tr>
-        <th>POSTS</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr v-for="post in posts" :key="post._id">
-        <td>
-          <router-link :to="{ name: 'PostDetail', params: { id: post._id }}">
-            {{ post.title }}
-          </router-link>
-        </td>
-      </tr>
-    </tbody>
-</table>
-
+      <thead>
+        <tr>
+          <th>POSTS</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr v-for="post in posts" :key="post.id">
+          <td>
+            <router-link :to="`/PostDetail/${post.id}`">
+              {{ post.title }}
+            </router-link>
+          </td>
+        </tr>
+      </tbody>
+    </table>
   </div>
 </template>
 
@@ -37,6 +38,21 @@ export default {
     this.fetchPosts()
   },
   methods: {
+    register () {
+      this.$router.push({ name: 'Register' })
+    },
+    login () {
+      this.$router.push({ name: 'Login' })
+    },
+    fetchPostById (postId) {
+      axios.get(`http://localhost:5000/getpost/${postId}`)
+        .then(response => {
+          console.log(response.data)
+        })
+        .catch(error => {
+          console.error('Error fetching post details:', error)
+        })
+    },
     logout () {
       const jwtToken = localStorage.getItem('jwt')
       axios.delete('http://localhost:5000/logout', {
@@ -59,6 +75,7 @@ export default {
       axios.get('http://localhost:5000/getposts')
         .then(response => {
           this.posts = response.data.posts
+          console.log(this.post)
         })
         .catch(error => {
           console.error('Error fetching posts:', error)
@@ -86,20 +103,32 @@ export default {
 h2 {
   margin-bottom: 15px;
 }
-
-button {
+.button-container {
+  display: flex;
+  justify-content: flex-end;
+  position: absolute;
+  top: 10px;
+  right: 10px;
+}
+.button {
   padding: 8px 16px;
   background-color: #3498db;
   color: #fff;
   border: none;
   border-radius: 4px;
   cursor: pointer;
-  position: absolute;
-
-      right: 10px;
-      top: 10px;
+  margin-left: 10px;
 }
-
+.button + .button {
+  margin-left: 10px;
+  margin-top: 10px;
+}
+.login{
+   background-color: #660066
+}
+.register{
+  background-color: #330033
+}
 ul.post-list {
   list-style: none;
   padding: 0;
@@ -145,4 +174,3 @@ router-link.post-link:hover {
     background-color: #f2f2f2;
   }
 </style>
-
