@@ -1,10 +1,7 @@
 <template>
   <div>
     <h2>Post Update</h2>
-    <form @submit.prevent="updatePost">
-      <label for="postId">Post ID:</label>
-      <input v-model="postId" id="postId" type="text" required />
-
+    <form @submit.prevent="updatePost(postId)">
       <label for="title">Title:</label>
       <input v-model="title" id="title" type="text" required />
 
@@ -23,15 +20,17 @@ import axios from 'axios'
 export default {
   data () {
     return {
-      postId: '',
+      postId: this.$route.params.id,
       title: '',
       content: ''
     }
   },
+  mounted () {
+    this.fetchPosts(this.postId)
+  },
   methods: {
-    updatePost () {
-      axios.post('http://localhost:5000/updatepost', {
-        _id: this.postId,
+    updatePost (postId) {
+      axios.post(`http://localhost:5000/updatepost/${postId}`, {
         title: this.title,
         content: this.content
       },
@@ -48,7 +47,26 @@ export default {
         .catch((error) => {
           console.error('Error updating post:', error)
         })
-    }
-  }
+    },
+    fetchPosts (postId) {
+        console.log(postId)
+        const jwtToken = localStorage.getItem('jwt')
+        axios.get(`http://localhost:5000/getpost/${postId}`, {
+          headers: {
+            Authorization: `Bearer ${jwtToken}`,
+            'Content-Type': 'application/json'
+          }
+        })
+          .then(response => {
+            console.log(response)
+            this.title = response.data.post.title
+            this.content = response.data.post.content
+          })
+          .catch(error => {
+            console.log(jwtToken)
+            console.error('Error fetching posts:', error)
+          })
+      },
+  },
 }
 </script>

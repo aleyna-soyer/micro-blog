@@ -8,6 +8,11 @@
       <p>Comment: {{ c.comment }}</p>
     </div>
     <p v-else>No comments</p>
+    <form @submit.prevent="addComment()">
+      <label for="comment">Comment:</label>
+        <textarea v-model="my_comment" id="comment" required></textarea>
+        <button type="submit">Add Comment</button>
+      </form>
 </div>
 </template>
 
@@ -19,7 +24,8 @@ export default {
     return {
       post: {},
       id: this.$route.params.id,
-      comment: []
+      comment: [],
+      my_comment: ''
     }
   },
   created () {
@@ -30,6 +36,21 @@ export default {
     this.fetchComment(this.id)
   },
   methods: {
+    addComment () {
+      axios.post(`http://localhost:5000/addcomment/${this.id}`,{
+        text: this.my_comment,
+      },
+    {
+      headers: {
+            Authorization: `Bearer ${localStorage.getItem('jwt')}`,
+            'Content-Type': 'application/json'
+          }
+    }
+      )
+      .then((response) => 
+        this.$router.go()
+      )
+    },
     fetchComment (id) {
       axios.get(`http://localhost:5000/getcomment/${id}`)
         .then((response) => {

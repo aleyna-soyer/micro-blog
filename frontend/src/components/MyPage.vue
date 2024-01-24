@@ -8,7 +8,9 @@
         <p>{{ post.content }}</p>
         <p>ID: {{ post.id }}</p>
         <button @click="deletePost(post.id)">Delete</button>
-        <button @click="updatePost(post.id)">Update</button>
+        <router-link :to="`/UpdatePost/${post.id}`" >
+          <button>Update</button>
+        </router-link>
       </li>
     </ul>
     <p v-else> Any post </p>
@@ -25,7 +27,13 @@ export default {
     }
   },
   created () {
-    this.fetchPosts()
+    const jwtToken = localStorage.getItem('jwt')
+    if (!jwtToken){
+      this.$router.push('/login')
+    }
+    else {
+      this.fetchPosts()
+    }
   },
   methods: {
     addPost () {
@@ -41,7 +49,6 @@ export default {
       })
         .then(response => {
           this.posts = response.data.posts
-          console.log(response)
         })
         .catch(error => {
           console.log(jwtToken)
@@ -64,8 +71,7 @@ export default {
         })
     },
     updatePost (postId) {
-      this.$router.push({ name: 'UpdatePost' })
-      axios.post(`http://localhost:5000/updatepost/${this.postId}`)
+      this.$router.push({ name: 'UpdatePost', params: postId})
     }
   }
 }
