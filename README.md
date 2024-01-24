@@ -1,4 +1,4 @@
-# Flask Blog Proejct
+# Flask Blog Project
 
 This Flask project is used to manage a simple blog site. Users can register, login, logout, add, update, and delete posts. Additionally, users can add comments to posts.
 
