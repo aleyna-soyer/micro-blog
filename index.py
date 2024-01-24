@@ -6,7 +6,6 @@ from bson import ObjectId
 from flask_bcrypt import Bcrypt
 from flask import Flask, jsonify, make_response,render_template, request
 from mongoengine import connect, disconnect
-from dotenv import load_dotenv
 from blockList import BlockList
 from comment import Comment
 from post import Post
@@ -25,7 +24,6 @@ CORS(
     ],
 )
 
-load_dotenv()
 app.config["JWT_SECRET_KEY"] = os.getenv("SECRET_KEY", "SECRET_KEY")
 mongo_uri = os.getenv("MONGO_URI")
 connect(host=mongo_uri)
