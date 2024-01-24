@@ -41,6 +41,21 @@ def user_lookup_callback(_jwt_header, jwt_data):
 
     return User.objects.get(id=identity)
 
+@app.route('/getcomment/<post_id>', methods=['GET'])
+def getcomment(post_id):
+    post = Post.objects(id=post_id).first()
+
+    if not post:
+        return jsonify({'error': 'Post not found'})
+
+    comments = Comment.objects(post=post)
+    
+    if comments:
+        comment_list = [{'id': str(comment.id), 'comment': comment.text} for comment in comments]
+        return jsonify({'comments': comment_list})
+    else:
+        return jsonify({'error': 'Comments not found'})
+
 @app.route('/addcomment/<post_id>', methods=['POST'])
 @jwt_required()
 def addcomment(post_id):
