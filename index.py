@@ -14,7 +14,6 @@ import json
 import jwt
 from flask_jwt_extended import JWTManager, create_access_token, get_jwt_identity, jwt_required
 
-from vote import Vote
 
 app=Flask(__name__)
 load_dotenv()
@@ -42,17 +41,16 @@ def user_lookup_callback(_jwt_header, jwt_data):
 
     return User.objects.get(id=identity)
 
-@app.route('/addcomment', methods=['POST'])
+@app.route('/addcomment/<post_id>', methods=['POST'])
 @jwt_required()
-def addcomment():
+def addcomment(post_id):
     current_user_id = get_jwt_identity()
     if not current_user_id:
      return make_response("login to post a vote entry", 401) 
     
-    title = request.json.get('title')
     text = request.json.get('text')
 
-    post = Post.objects(title=title).first()
+    post = Post.objects(id=post_id).first()
     if not post:
         return jsonify({"message": "Post not found"}), 404
 
