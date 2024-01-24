@@ -8,14 +8,23 @@ from flask import Flask, jsonify, make_response,render_template, request
 from mongoengine import connect, disconnect
 from dotenv import load_dotenv
 from blockList import BlockList
+from comment import Comment
 from post import Post
 from user import User
 import os
 import json 
 import jwt
 from flask_jwt_extended import JWTManager, create_access_token, get_jwt, get_jwt_identity, jwt_required
+from flask_cors import CORS
 
 app=Flask(__name__)
+CORS(
+    app,
+    origins=[
+        "http://localhost:8080",
+    ],
+)
+
 load_dotenv()
 app.config["JWT_SECRET_KEY"] = os.getenv("SECRET_KEY", "SECRET_KEY")
 mongo_uri = os.getenv("MONGO_URI")
@@ -47,6 +56,43 @@ def check_if_token_revoked(jwt_header, jwt_payload):
     token = BlockList.objects(jti=jti).limit(1).first()
     return token != None
 
+@app.route('/addcomment/<post_id>', methods=['POST'])
+@jwt_required()
+def addcomment(post_id):
+    current_user_id = get_jwt_identity()
+    if not current_user_id:
+     return make_response("login to post a vote entry", 401) 
+    
+    text = request.json.get('text')
+
+    post = Post.objects(id=post_id).first()
+    if not post:
+        return jsonify({"message": "Post not found"}), 404
+
+    user = User.objects(id=current_user_id).first()
+    if not user:
+        return jsonify({"message": "User not found"}), 404
+
+    comment = Comment(text=text, author=user, post=post)
+    comment.save()
+
+    return jsonify({"message": "Comment added"}), 200
+
+@app.route('/getcomment/<post_id>', methods=['GET'])
+def getcomment(post_id):
+    post = Post.objects(id=post_id).first()
+
+    if not post:
+        return jsonify({'error': 'Post not found'})
+
+    comments = Comment.objects(post=post)
+    
+    if comments:
+        comment_list = [{'id': str(comment.id), 'comment': comment.text} for comment in comments]
+        return jsonify({'comments': comment_list})
+    else:
+        return jsonify({'error': 'Comments not found'})
+
 @app.route('/logout', methods=['DELETE'])
 @jwt_required()
 def logout():
@@ -59,15 +105,15 @@ def logout():
       else:
         return make_response("Already logged out", 403)
 
-@app.route('/updatepost', methods=['POST'])
+@app.route('/updatepost/<post_id>', methods=['POST'])
 @jwt_required()
-def updatepost():
+def updatepost(post_id):
      
      current_user_id = get_jwt_identity()
      if not current_user_id:
         return make_response("login to post a update entry", 401)
      
-     post = Post.objects(author=current_user_id).first()
+     post = Post.objects.get(id=post_id, author=current_user_id)
     
      if post:
         updated_data = request.json
@@ -79,15 +125,15 @@ def updatepost():
      else:
         return make_response("You don't have permission to update this post or post does not exist", 403)
 
-@app.route('/deletepost', methods=['DELETE'])
+@app.route('/deletepost/<post_id>', methods=['DELETE'])
 @jwt_required()
-def  deletepost():
+def  deletepost(post_id):
      
      current_user_id = get_jwt_identity()
      if not current_user_id:
         return make_response("login to post a delete entry", 401)
      
-     post = Post.objects(author=current_user_id).first()
+     post = Post.objects.get(id=post_id, author=current_user_id)
 
      if post:
         post.delete()
@@ -95,13 +141,39 @@ def  deletepost():
      else:
         return make_response("You don't have permission to delete this post or post does not exist", 403)
 
+@app.route('/getpostbyauthor', methods=['GET'])
+@jwt_required()
+def getpostbyauthor():
+
+    current_user_id = get_jwt_identity() 
+    post = Post.objects(author=current_user_id)
+    post_list = [{'id': str(post.id), 'title': post.title, 'content': post.content} for post in post]
+
+    return jsonify({'posts': post_list})
+
 @app.route('/getposts', methods=['GET'])
 def getposts():
 
     posts = Post.objects().order_by('-date')
-    post_list = [{'title': post.title, 'content': post.content} for post in posts]
+    post_list = [{'id': str(post.id), 'title': post.title, 'content': post.content} for post in posts]
 
     return jsonify({'posts': post_list})
+
+@app.route('/getpost/<post_id>', methods=['GET'])
+def getpost(post_id):
+
+    post = Post.objects(id=post_id).first()
+    if post:
+        posts = {
+                'id': str(post.id),
+                'title': post.title,
+                'content': post.content,
+                'date': post.date,
+                'author': post.author.username
+                }
+        return jsonify({'post': posts})
+    else:
+        return jsonify({'error': 'Post not found'}), 404
 
 @app.route('/addpost', methods=['POST'])
 @jwt_required()

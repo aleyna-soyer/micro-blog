@@ -49,6 +49,7 @@ export default {
       })
         .then(response => {
           this.posts = response.data.posts
+          console.log(response)
         })
         .catch(error => {
           console.log(jwtToken)
