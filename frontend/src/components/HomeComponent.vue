@@ -3,6 +3,7 @@
     <h2>Home Page</h2>
     <button @click="login()" class="button login">Login</button>
     <button @click="register()" class="button register">Register</button>
+    <button @click="profile()" class="button page">Profile</button>
     <button @click="logout" class="button">
       <span>Logout</span>
     </button>
@@ -38,6 +39,9 @@ export default {
     this.fetchPosts()
   },
   methods: {
+    profile () {
+      this.$router.push({ name: 'MyPage' })
+    },
     register () {
       this.$router.push({ name: 'Register' })
     },
@@ -125,6 +129,9 @@ h2 {
 }
 .login{
    background-color: #660066
+}
+.page{
+  background-color: #5F9EA0
 }
 .register{
   background-color: #330033
