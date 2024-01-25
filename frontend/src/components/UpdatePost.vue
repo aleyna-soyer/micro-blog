@@ -2,12 +2,14 @@
   <div>
     <h2>Post Update</h2>
     <form @submit.prevent="updatePost(postId)">
+      <div class="block">
       <label for="title">Title:</label>
       <input v-model="title" id="title" type="text" required />
-
+      </div>
+      <div class="block">
       <label for="content">Content:</label>
       <textarea v-model="content" id="content" required></textarea>
-
+      </div>
       <button type="submit">Update Post</button>
     </form>
   </div>
@@ -70,3 +72,18 @@ export default {
   },
 }
 </script>
+
+<style scoped>
+
+textarea{
+  height: 20em;
+  width: 40em;
+}
+.block{
+
+  display: block;
+  margin: 1em;
+
+}
+
+</style>
