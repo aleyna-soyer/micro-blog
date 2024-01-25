@@ -18,6 +18,7 @@ import jwt
 from flask_jwt_extended import JWTManager, create_access_token, get_jwt, get_jwt_identity, jwt_required
 from flask_cors import CORS
 
+
 app=Flask(__name__)
 CORS(
     app,
@@ -26,8 +27,11 @@ CORS(
     ],
 )
 
-app.config["JWT_SECRET_KEY"] = os.getenv("SECRET_KEY", "SECRET_KEY")
-mongo_uri = os.getenv("MONGO_URI")
+with open('config.json', 'r') as file:
+    data = json.load(file)
+
+app.config["JWT_SECRET_KEY"] = data["SECRET_KEY"]
+mongo_uri = data["MONGO_URI"]
 connect(host=mongo_uri)
 bcrypt = Bcrypt(app)
 jwt = JWTManager(app)
