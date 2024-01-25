@@ -2,8 +2,7 @@
   <div>
     <h2 class="post-title">{{ post.title }}</h2>
     <p class="post-detail"><span class="label">AUTHOR:</span> {{ post.author }}</p>
-    <p class="post-detail"><span class="label">DATE:</span> {{ post.date }}</p>
-    <p class="post-detail"><span class="label">ENTRY:</span> {{ post.content }}</p>
+    <p class="post-detail"><span class="label"></span> {{ post.content }}</p>
 
     <button @click="votes('1')">Like({{ this.like }})</button>
     <button @click="votes('0')">Dislike({{ this.dislike }})</button>
