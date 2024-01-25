@@ -4,12 +4,14 @@
   <div>
     <h2>Create a New Post</h2>
     <form @submit.prevent="createPost">
+      <div class="block">
       <label for="title">Title:</label>
       <input v-model="post.title" type="text" required>
-
+      </div>
+      <div class="block">
       <label for="content">Content:</label>
       <textarea v-model="post.content" required></textarea>
-
+      </div>
       <button type="submit">Create Post</button>
     </form>
   </div>
@@ -61,3 +63,16 @@ export default {
   }
 }
 </script>
+
+<style scoped>
+textarea{
+  height: 20em;
+  width: 40em;
+}
+.block{
+
+display: block;
+margin: 1em;
+
+}
+</style>

@@ -1,5 +1,6 @@
 
 from datetime import timedelta
+import datetime
 from functools import wraps
 import time
 from bson import ObjectId
@@ -10,6 +11,7 @@ from blockList import BlockList
 from comment import Comment
 from post import Post
 from user import User
+from vote import Vote
 import os
 import json 
 import jwt
@@ -54,12 +56,56 @@ def check_if_token_revoked(jwt_header, jwt_payload):
     token = BlockList.objects(jti=jti).limit(1).first()
     return token != None
 
+@app.route('/getvote/<post_id>', methods=['GET'])
+def getvote(post_id):
+    post = Post.objects(id=post_id).first()
+
+    if not post:
+        return jsonify({'error': 'Post not found'})
+
+    vote_arr = Vote.objects(post=post)
+    
+    like= vote_arr.filter(vote='1').count()
+    dislike = vote_arr.filter(vote='0').count()
+    return jsonify({'Like': like, 'Dislike': dislike})
+
+   
+@app.route('/addvote/<post_id>', methods=['POST'])
+@jwt_required()
+def addvote(post_id):
+    current_user_id = get_jwt_identity()
+    if not current_user_id:
+     return make_response("login to post a vote entry", 401) 
+    
+    vote = request.json.get('vote')
+
+    post = Post.objects(id=post_id).first()
+    if not post:
+     return jsonify({"message": "Post not found"}), 404
+    
+    user = User.objects(id=current_user_id).first()
+    if not user:
+        return jsonify({"message": "User not found"}), 404
+    
+    user_vote = Vote.objects(user=user, post=post).first()
+    if user_vote:
+        return jsonify({"message": "User already voted on this post"}), 400
+    
+    if vote!='0' and vote!='1':
+        return jsonify({"message": "Vote invalid"}), 400
+    
+    vote = Vote(user=user, post=post, vote=vote)
+    vote.save()
+    return jsonify({"message": "Vote added successfully"}),200
+
+
+ 
 @app.route('/addcomment/<post_id>', methods=['POST'])
 @jwt_required()
 def addcomment(post_id):
     current_user_id = get_jwt_identity()
     if not current_user_id:
-     return make_response("login to post a vote entry", 401) 
+     return make_response("login to post a comment entry", 401) 
     
     text = request.json.get('text')
 

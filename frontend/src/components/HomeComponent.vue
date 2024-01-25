@@ -1,22 +1,24 @@
 <template>
   <div class="center-content">
     <h2>Home Page</h2>
+    <div class="flex-container">
     <button @click="login()" class="button login">Login</button>
     <button @click="register()" class="button register">Register</button>
     <button @click="profile()" class="button page">Profile</button>
     <button @click="logout" class="button">
       <span>Logout</span>
     </button>
+    </div>
     <table>
       <thead>
         <tr>
           <th>POSTS</th>
         </tr>
       </thead>
-      <tbody>
+      <tbody style="background-color: rgb(164, 156, 185);">
         <tr v-for="post in posts" :key="post.id">
           <td>
-            <router-link :to="`/PostDetail/${post.id}`">
+            <router-link class="post" :to="`/PostDetail/${post.id}`">
               {{ post.title }}
             </router-link>
           </td>
@@ -90,6 +92,21 @@ export default {
 </script>
 
 <style scoped>
+.post{
+  text-decoration: none;
+  color:black;
+}
+.flex-container {
+  display: flex;
+  flex-wrap: nowrap;
+  background-color: rgb(170, 174, 179);
+}
+
+.flex-container > button {
+  margin: 10px;
+  text-align: center;
+  font-size: 30px;
+}
 
 .center-content {
   display: flex;
