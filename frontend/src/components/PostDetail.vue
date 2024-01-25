@@ -11,6 +11,7 @@
     <div v-if="comment && comment.length > 0" v-for="c in comment" :key="c.id">
       <p class="comment"><span class="label">COMMENT:</span> {{ c.comment }}</p>
     </div>
+
     <p v-else class="no-comments">No comments</p>
 
     <form @submit.prevent="addComment()" class="labelc">
