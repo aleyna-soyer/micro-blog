@@ -18,10 +18,20 @@ To run the application, follow the steps below:
         Linux or macOS:
           source venv/bin/activate
 
-2.**Install Dependencies:**
+2.**Create a config file:**
+
+       cd micro-blog 
+       cat > config.json
+        "MONGO_URI": "your_mongo_uri"
+        "SECRET_KEY": "your_secret_key"
+        ctrl+d //save and close the file
+e
+3.**Install Dependencies:**
 
         pip install -r requirements.txt   
 
-3.**Run the Application:**
+4.**Run the Application:**
 
-        python index.py
+        python index.py 
+        (python3 index.py)
+        
